@@ -3,6 +3,11 @@ use needletail::{fastx};
 extern crate clap;
 use clap::{Arg, App};
 
+// Local code
+mod codon_table;
+
+use codon_table::codon_table;
+
 fn main() {
     let matches = App::new("My Super Program")
         .version("1.0")
@@ -15,6 +20,14 @@ fn main() {
             .help("Input sequence file")
             .required(true)
             .multiple(true)
+            .takes_value(true))
+        .arg(Arg::with_name("ksize")
+            .short("k")
+            .long("ksize")
+            .value_name("KSIZE")
+            .help("k-mer size")
+            // Clap currently only handles strings. Have to convert to int later
+            .default_value("21")
             .takes_value(true))
         .get_matches();
 
@@ -36,9 +49,10 @@ fn main() {
         // keep track of the number of AAAA (or TTTT via canonicalization) in the
         // file (normalize makes sure ever base is capitalized for comparison)
         for (_, kmer, _) in seq.normalize(false).kmers(4, true) {
-        if kmer == b"AAAA" {
-        n_valid_kmers += 1;
-        }
+            if kmer == b"AAAA" {
+                n_valid_kmers += 1;
+            }
+            println!("{:?}", codon_table.entry(kmer[..3].to_string()));
         }
         }).expect(&format!("Could not read {}", file));
 

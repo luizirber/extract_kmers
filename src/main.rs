@@ -1,3 +1,5 @@
+use std::str;
+extern crate lazy_static;
 extern crate needletail;
 use needletail::{fastx};
 extern crate clap;
@@ -5,8 +7,6 @@ use clap::{Arg, App};
 
 // Local code
 mod codon_table;
-
-use codon_table::codon_table;
 
 fn main() {
     let matches = App::new("My Super Program")
@@ -52,7 +52,7 @@ fn main() {
             if kmer == b"AAAA" {
                 n_valid_kmers += 1;
             }
-            println!("{:?}", codon_table.entry(kmer[..3].to_string()));
+            println!("{}", codon_table::CODON_TABLE.get(str::from_utf8(&kmer[..3]).unwrap()).unwrap());
         }
         }).expect(&format!("Could not read {}", file));
 
@@ -61,5 +61,3 @@ fn main() {
     }
 
 }
-
-

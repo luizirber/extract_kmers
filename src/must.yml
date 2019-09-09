@@ -5,6 +5,11 @@ author: Olga Botvinnik <olga.botvinnik@czbiohub.org>
 
 settings:
     - SubcommandRequiredElseHelp
+args:
+    - verbose:
+        short: v
+        multiple: true
+        help: Sets the level of verbosity
 
 subcommands:
     - extract:
@@ -21,6 +26,7 @@ subcommands:
             - sequence_files:
                 help: FASTA/FASTQ files
                 multiple: true
+                required: true
     - classify:
         about: Classify reads as coding or noncoding
         settings:
@@ -34,8 +40,11 @@ subcommands:
                 required: false
             - coding_kmers:
                 help: Plain text file of k-mers extracted from coding sequences, e.g. from a file like Homo_sapiens.GRCh38.cds.all.fa.gz
+                required: true
             - non_coding_kmers:
                 help: Plain text file of k-mers extracted from non-coding sequences, e.g. from a file like Homo_sapiens.GRCh38.ncrna.all.fa.gz
+                required: true
             - sequence_files:
                 help: FASTA/FASTQ files
                 multiple: true
+                required: true

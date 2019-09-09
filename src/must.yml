@@ -1,0 +1,41 @@
+name: must
+version: "0.0.1"
+about: "must commands"
+author: Olga Botvinnik <olga.botvinnik@czbiohub.org>
+
+settings:
+    - SubcommandRequiredElseHelp
+
+subcommands:
+    - extract:
+        about: Extract k-mers of specific size
+        settings:
+            - ArgRequiredElseHelp
+        args:
+            - ksize:
+                help: ksize
+                short: K
+                default_value: "21"
+                takes_value: true
+                required: false
+            - sequence_files:
+                help: FASTA/FASTQ files
+                multiple: true
+    - classify:
+        about: Classify reads as coding or noncoding
+        settings:
+            - ArgRequiredElseHelp
+        args:
+            - ksize:
+                help: ksize
+                short: K
+                default_value: "21"
+                takes_value: true
+                required: false
+            - coding_kmers:
+                help: Plain text file of k-mers extracted from coding sequences, e.g. from a file like Homo_sapiens.GRCh38.cds.all.fa.gz
+            - non_coding_kmers:
+                help: Plain text file of k-mers extracted from non-coding sequences, e.g. from a file like Homo_sapiens.GRCh38.ncrna.all.fa.gz
+            - sequence_files:
+                help: FASTA/FASTQ files
+                multiple: true

@@ -1,4 +1,5 @@
 use std::str;
+use std::path::Path;
 use std::cmp::min;
 use std::collections::HashSet;
 extern crate lazy_static;
@@ -9,16 +10,19 @@ use std::io::{BufReader};
 use std::io::prelude::*;
 use std::fs::File;
 
-fn read_kmer_file(kmer_file: &str) -> HashSet<&'static str> {
+fn read_kmer_file(kmer_file: &Path) -> HashSet<&'static str> {
     let mut kmers = HashSet::new();
 
     // Read in coding k-mers
-    let f = File::open(kmer_file);
+    let f = match File::open(kmer_file) {
+        Ok(f) => f,
+        Err(e) => return kmers,
+    };
     let f = BufReader::new(f);
 
     for line in f.lines() {
-        let kmer = line.unwrap();
-        kmers.insert(kmer.to_owned());
+        let kmer: &str = &String::from(line.unwrap());
+        kmers.insert(kmer);
     }
     return kmers;
 }
@@ -26,7 +30,8 @@ fn read_kmer_file(kmer_file: &str) -> HashSet<&'static str> {
 fn jaccardize(set1: &HashSet<&str>, set2: &HashSet<&str>, verbose: usize) -> f64 {
     let denominator = min(set1.len(), set2.len());
     if denominator > 0 {
-        let numerator = set1.intersection(&set2).len();
+        let numerator_set: HashSet<_> = set1.intersection(&set2).collect();
+        let numerator = numerator_set.len();
         if verbose > 0 {
             println!("Number of overlapping k-mers: {numerator}/{denominator}",
                      numerator=numerator, denominator=denominator)
@@ -37,8 +42,8 @@ fn jaccardize(set1: &HashSet<&str>, set2: &HashSet<&str>, verbose: usize) -> f64
     }
 }
 
-pub fn classify(sequence_files: Vec<&str>, coding_kmer_file: str,
-                non_coding_kmer_file: str, ksize: u8, verbosity: usize) {
+pub fn classify(sequence_files: Vec<&str>, coding_kmer_file: &Path,
+                non_coding_kmer_file: &Path, ksize: u8, verbosity: usize) {
     let coding_kmers = read_kmer_file(&coding_kmer_file);
     let non_coding_kmers = read_kmer_file(&non_coding_kmer_file);
     let mut all_kmers = HashSet::new();
@@ -59,9 +64,9 @@ pub fn classify(sequence_files: Vec<&str>, coding_kmer_file: str,
             // keep track of the number of AAAA (or TTTT via canonicalization) in the
             // file (normalize makes sure every base is capitalized for comparison)
             for (_, kmer, _) in seq.normalize(false).kmers(ksize, false) {
-                let kmer = str::from_utf8(&kmer).unwrap();
-                this_read_kmers.insert(kmer.to_owned());
-                all_kmers.insert(kmer.to_owned());
+                let kmer: &str = &String::from_utf8(kmer.to_vec()).unwrap();
+                this_read_kmers.insert(kmer);
+                all_kmers.insert(kmer);
 //            println!("{}", kmer);
             }
             let this_read_kmers_in_coding = coding_kmers.intersection(&this_read_kmers);

@@ -8,7 +8,6 @@ use clap::{Arg, App, value_t};
 
 // Local code
 mod codon_table;
-mod complement_table;
 
 fn main() {
     let matches = App::new("My Super Program")
